@@ -1,0 +1,230 @@
+﻿<!-- 
+// author:      kingpauloaquino
+// linkedin:    https://bit.ly/2QdaISI
+// email:       kpa.ph@aol.com
+// mobile:      +63 917 7715380
+// skype-id:    king052188 
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SCA User List (Excel Generator)</title>
+    <!-- Styles -->
+    <link rel="apple-touch-icon"
+        href="http://icons.iconarchive.com/icons/papirus-team/papirus-apps/24/ms-excel-icon.png">
+    <link rel="shortcut icon" type="image/png"
+        href="http://icons.iconarchive.com/icons/papirus-team/papirus-apps/24/ms-excel-icon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+    
+    <!-- Styles -->
+    <style>
+        html,
+        body {
+            color: #464646;
+            font-family: 'Ubuntu', sans-serif;
+            font-weight: 600;
+            height: 100vh;
+            margin: 0
+        }
+
+        h3 {
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: center
+        }
+
+        .full-height {
+            height: 100vh
+        }
+
+        .flex-center {
+            align-items: center;
+            display: flex;
+            justify-content: center
+        }
+
+        .position-ref {
+            position: relative
+        }
+
+        .top-right {
+            position: absolute;
+            right: 10px;
+            top: 18px
+        }
+
+        .content {
+            text-align: center;
+            width: 50%
+        }
+
+        .title {
+            font-size: 84px
+        }
+
+        .links>a {
+            color: #000;
+            padding: 0 25px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .1rem;
+            text-decoration: none;
+            text-transform: uppercase
+        }
+
+        .links>a:hover {
+            text-decoration: underline
+        }
+
+        .m-b-md {
+            margin-bottom: 30px
+        }
+
+        
+        @media only screen and (max-width: 800px) {
+            .h3-title {
+                font-size: 1.5em;
+            }
+        }
+        @media only screen and (max-width: 450px) {
+            .h3-title {
+                font-size: 1.2em;
+            }
+        }
+        @media only screen and (max-width: 380px) {
+            .h3-title {
+                font-size: .95em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div class="flex-center position-ref full-height">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <center>
+                            <img
+                                src="http://icons.iconarchive.com/icons/papirus-team/papirus-apps/128/ms-excel-icon.png" />
+                        </center>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="h3-title">*** User List Excel Generator ***</h3>
+                    </div>
+                </div>
+
+                <div id="btn_list" class="row mt-3" style="display: none;">
+                    <div class="col-md-3">
+                        <button id="btnDownload" type="submit" class="btn btn-primary mt-2 btn-block"><i class="fa fa-play" aria-hidden="true"></i> User List Generate</button>
+                    </div>
+                    <div class="col-md-6">
+                        <button id="btnSubscribe" type="submit" class="btn btn-warning mt-2 btn-block"><i class="fa fa-play"
+                                aria-hidden="true"></i> Subscribe & Unsubscribe Generate</button>
+                    </div>
+                    <div class="col-md-3">
+                        <button id="btnExcels" type="submit" class="btn btn-success mt-2 btn-block"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel Archives</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script>
+        getValue();
+        
+        var global_link = "";
+
+        function getValue() {
+            var retVal = prompt("Enter Password: ", "Password here...");
+            $.get("check-point?password=" + retVal, function (data) {
+                if (!data.status) {
+                    alert("Please enter the valid password.")
+                    location.reload();
+                    return false;
+                }
+                else {
+                    $("#btn_list").show();
+                    global_link = data.link;
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#btnDownload").click(function () {
+                $("#btnDownload").empty().prepend("<i class='fa fa-spinner' aria-hidden='true'></i> Please wait...");
+                $("#btnDownload").attr("disabled", true);
+                $("#btnExcels").attr("disabled", true);
+
+                $.get("/all-users-export-to-excel-download", function (data) {
+                    if(data.status > 210) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message
+                        })
+                    }
+                    else {
+                        $("#btnDownload").empty().prepend("<i class='fa fa-play' aria-hidden='true'></i> Generate");
+                        $("#btnDownload").attr("disabled", false);
+                        $("#btnExcels").attr("disabled", false);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Done!',
+                            text: data.message
+                        })
+                    }
+                });
+            })
+
+            $("#btnSubscribe").click(function () {
+                $("#btnSubscribe").empty().prepend("<i class='fa fa-spinner' aria-hidden='true'></i> Please wait...");
+                $("#btnSubscribe").attr("disabled", true);
+                $("#btnDownload").attr("disabled", true);
+                $("#btnExcels").attr("disabled", true);
+
+                $.get("/subscribe-unsubscribe-list-generate", function (data) {
+                    if (data.status > 210) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message
+                        })
+                    }
+                    else {
+                        $("#btnSubscribe").empty().prepend("<i class='fa fa-play' aria-hidden='true'></i> Generate");
+                        $("#btnSubscribe").attr("disabled", false);
+                        $("#btnDownload").attr("disabled", false);
+                        $("#btnExcels").attr("disabled", false);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Done!',
+                            text: data.message
+                        })
+                    }
+                });
+            })
+
+            $("#btnExcels").click(function () {
+                window.open(global_link, "_blank", "toolbar=no,scrollbars=yes,resizable=no,top=200,left=0,width=680,height=550");
+            })
+        })
+    </script>
+</body>
+
+</html>
