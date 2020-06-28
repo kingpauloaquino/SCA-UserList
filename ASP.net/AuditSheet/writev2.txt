@@ -1,0 +1,107 @@
+public void WriteV2()
+        {
+            AuditV2 a = AuditlogsV2();
+            int row = 2;
+            JObject o;
+
+            if (a.Message != 200)
+            {
+                o = new JObject();
+                o["status"] = 402;
+                o["message"] = "Lot number did not found.";
+                Response.Write(o.ToString());
+                return;
+            }
+
+            if (a.Result.Count == 0)
+            {
+                o = new JObject();
+                o["status"] = 403;
+                o["message"] = "Lot number no data record.";
+                Response.Write(o.ToString());
+                return;
+            }
+
+            if (!File.Exists(ExcelSource))
+            {
+                o = new JObject();
+                o["status"] = 401;
+                o["message"] = "Excel source file did not found.";
+
+                Response.Write(o.ToString());
+                return;
+            }
+
+            xlApp = new Excel.Application();
+            xlWorkbook = xlApp.Workbooks.Open(ExcelSource);
+            xlWorksheet = xlWorkbook.Sheets[1];
+            xlRange = xlWorksheet.UsedRange;
+
+            foreach (ResultV2 r in a.Result)
+            {
+                string box = r.box_code;
+                List<BoxResults> results = r.box_result;
+
+                Pages page = GroupByBox(results.Count, 43);
+
+                int countRows = 0;
+
+                foreach(BoxResults b in results)
+                {
+                    xlApp.Cells[row, 1] = box;
+                    xlApp.Cells[row, 2] = b.unique_unit_number;
+                    //xlApp.Cells[row, 3] = "3";
+                    xlApp.Cells[row, 4] = b.fullness_grade;
+                    //xlApp.Cells[row, 5] = "5";
+                    xlApp.Cells[row, 6] = b.comments;
+                    //xlApp.Cells[row, 7] = "7";
+                    //xlApp.Cells[row, 8] = "8";
+                    //xlApp.Cells[row, 9] = "9";
+                    
+                    Excel.Range line = (Excel.Range)xlWorksheet.Rows[row + 1];
+                    line.Insert();
+                    for (int c = 1; c <= 9; c++)
+                    {
+                        setBorderCell(row, c);
+                    }
+                    countRows++;
+                    row++;
+                }
+
+                if(page.RowCount > countRows)
+                {
+                    int x = page.RowCount - countRows;
+                    for(int i = 0; i < x; i++)
+                    {
+                        xlApp.Cells[row, 1] = "";
+                        xlApp.Cells[row, 2] = "";
+                        //xlApp.Cells[row, 3] = "3";
+                        xlApp.Cells[row, 4] = "";
+                        //xlApp.Cells[row, 5] = "5";
+                        xlApp.Cells[row, 6] = "";
+                        //xlApp.Cells[row, 7] = "7";
+                        //xlApp.Cells[row, 8] = "8";
+                        //xlApp.Cells[row, 9] = "9";
+
+                        Excel.Range line = (Excel.Range)xlWorksheet.Rows[row + 1];
+                        line.Insert();
+                        for (int c = 1; c <= 9; c++)
+                        {
+                            setBorderCell(row, c);
+                        }
+                        row++;
+                    }
+                }
+
+                row++;
+            }
+
+            string filename = Flush();
+
+            o = new JObject();
+            o["status"] = 200;
+            o["message"] = "Success.";
+            o["link"] = ExcelLinkDownload + filename;
+            Response.Write(o.ToString());
+            return;
+        }
