@@ -53,11 +53,11 @@ namespace AuditSheet
             int rows = xlWorksheet.Cells.Find("*", System.Reflection.Missing.Value,
                                            System.Reflection.Missing.Value, System.Reflection.Missing.Value,
                                            Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row;
+                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row + 1;
 
             for(int x = 0; x < rows; x++)
             {
-                if(x > 1 )
+                if(x > 1)
                 {
                     if (xlRange.Cells[x, 1] != null && xlRange.Cells[x, 1].Value2 != null)
                     {
@@ -93,8 +93,8 @@ namespace AuditSheet
             ResponseUser res = new ResponseUser()
             {
                 Status = 200,
-                Message = "",
-                Rows = rows,
+                Message = "Success",
+                Rows = rows - 2,
                 Users = UserListArray
             };
 

@@ -75,3 +75,4 @@ C:\Users\king\Documents\GitHub\SCA-UserList\ASP.net\AuditSheet\AuditSheet\obj\De
 C:\Users\king\Documents\GitHub\SCA-UserList\ASP.net\AuditSheet\AuditSheet\obj\Debug\AuditSheet.csproj.CopyComplete
 C:\Users\king\Documents\GitHub\SCA-UserList\ASP.net\AuditSheet\AuditSheet\obj\Debug\AuditSheet.dll
 C:\Users\king\Documents\GitHub\SCA-UserList\ASP.net\AuditSheet\AuditSheet\obj\Debug\AuditSheet.pdb
+C:\Users\king\Documents\GitHub\SCA-UserList\ASP.net\AuditSheet\AuditSheet\obj\Debug\AuditSheet.csprojAssemblyReference.cache
