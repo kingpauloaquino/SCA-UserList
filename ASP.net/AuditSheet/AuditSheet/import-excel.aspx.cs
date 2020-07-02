@@ -6,6 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -22,6 +23,7 @@ namespace AuditSheet
         private static Excel.Range xlRange;
 
         private List<UserList> UserListArray;
+        private ResponseUser res;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -30,7 +32,7 @@ namespace AuditSheet
             if(Request.QueryString["excelfile"] == null)
             {
                 JObject o = new JObject();
-                o["status"] = 200;
+                o["status"] = 404;
                 o["message"] = "Oops, the filename could not found.";
                 Response.Write(o.ToString());
                 return;
@@ -42,65 +44,99 @@ namespace AuditSheet
 
         }
 
-
         private void HandleExcel(string ExcelSource)
         {
-            xlApp = new Excel.Application();
-            xlWorkbook = xlApp.Workbooks.Open(ExcelSource);
-            xlWorksheet = xlWorkbook.Sheets[1];
-            xlRange = xlWorksheet.UsedRange;
-
-            int rows = xlWorksheet.Cells.Find("*", System.Reflection.Missing.Value,
-                                           System.Reflection.Missing.Value, System.Reflection.Missing.Value,
-                                           Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
-                                           false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row + 1;
-
-            for(int x = 0; x < rows; x++)
+            try
             {
-                if(x > 1)
+                xlApp = new Excel.Application();
+                xlWorkbook = xlApp.Workbooks.Open(ExcelSource);
+                xlWorksheet = xlWorkbook.Sheets[1];
+                xlRange = xlWorksheet.UsedRange;
+
+                Thread.Sleep(500);
+
+                int rows = xlWorksheet.Cells.Find("*", System.Reflection.Missing.Value,
+                                               System.Reflection.Missing.Value, System.Reflection.Missing.Value,
+                                               Excel.XlSearchOrder.xlByRows, Excel.XlSearchDirection.xlPrevious,
+                                               false, System.Reflection.Missing.Value, System.Reflection.Missing.Value).Row + 1;
+
+                Thread.Sleep(500);
+
+                for (int x = 0; x < rows; x++)
                 {
-                    if (xlRange.Cells[x, 1] != null && xlRange.Cells[x, 1].Value2 != null)
+                    Thread.Sleep(200);
+
+                    if (x > 1)
                     {
-                        UserList ul = new UserList();
+                        if (xlRange.Cells[x, 1] != null && xlRange.Cells[x, 1].Value2 != null)
+                        {
+                            UserList ul = new UserList();
 
-                        ul.UserId = Convert.ToInt32(xlRange.Cells[x, 1].Value2);
-                        ul.WorkerId = Convert.ToInt32(xlRange.Cells[x, 2].Value2);
-                        ul.Role = xlRange.Cells[x, 3].Value2.ToString();
-                        ul.Active = Convert.ToInt32(xlRange.Cells[x, 4].Value2);
-                        ul.Username = xlRange.Cells[x, 5].Value2.ToString();
-                        ul.PasswordHint = xlRange.Cells[x, 6].Value2.ToString();
-                        ul.BusinessName = xlRange.Cells[x, 7].Value2.ToString();
-                        ul.Firstname = xlRange.Cells[x, 8].Value2.ToString();
-                        ul.Middlename = xlRange.Cells[x, 9].Value2.ToString();
-                        ul.Lastname = xlRange.Cells[x, 10].Value2.ToString();
-                        ul.Position = xlRange.Cells[x, 11].Value2.ToString();
-                        ul.EmailAddress = xlRange.Cells[x, 12].Value2.ToString();
-                        ul.MobileNumber = xlRange.Cells[x, 13].Value2.ToString();
-                        ul.Address = xlRange.Cells[x, 14].Value2.ToString();
-                        ul.City = xlRange.Cells[x, 15].Value2.ToString();
-                        ul.State = xlRange.Cells[x, 16].Value2.ToString();
-                        ul.Country = xlRange.Cells[x, 17].Value2.ToString();
-                        ul.Zipcode = xlRange.Cells[x, 18].Value2.ToString();
-                        ul.Type = xlRange.Cells[x, 19].Value2.ToString();
-                        ul.Created_At = xlRange.Cells[x, 20].Value2.ToString();
-                        ul.Updated_At = xlRange.Cells[x, 21].Value2.ToString();
+                            ul.UserId = check_cell(x, 1);
+                            ul.WorkerId = check_cell(x, 2);
+                            ul.Role = check_cell(x, 3);
+                            ul.Active = check_cell(x, 4);
+                            ul.Username = check_cell(x, 5);
+                            ul.PasswordHint = check_cell(x, 6);
+                            ul.BusinessName = check_cell(x, 7);
+                            ul.Firstname = check_cell(x, 8);
+                            ul.Middlename = check_cell(x, 9);
+                            ul.Lastname = check_cell(x, 10);
+                            ul.Position = check_cell(x, 11);
+                            ul.EmailAddress = check_cell(x, 12);
+                            ul.MobileNumber = check_cell(x, 13);
+                            ul.Address = check_cell(x, 14);
+                            ul.City = check_cell(x, 15);
+                            ul.State = check_cell(x, 16);
+                            ul.Country = check_cell(x, 17);
+                            ul.Zipcode = check_cell(x, 18);
+                            ul.Type = check_cell(x, 19);
+                            ul.Created_At = check_cell(x, 20);
+                            ul.Updated_At = check_cell(x, 21);
 
-                        UserListArray.Add(ul);
+                            UserListArray.Add(ul);
+                        }
                     }
                 }
+
+                res = new ResponseUser()
+                {
+                    Status = 200,
+                    Message = "Success",
+                    Rows = rows - 2,
+                    Users = UserListArray
+                };
+            }
+            catch(Exception ex)
+            {
+                res = new ResponseUser()
+                {
+                    Status = 500,
+                    Message = ex.Message
+                };
             }
 
-            ResponseUser res = new ResponseUser()
-            {
-                Status = 200,
-                Message = "Success",
-                Rows = rows - 2,
-                Users = UserListArray
-            };
+            Thread.Sleep(500);
 
             string json = JsonConvert.SerializeObject(res);
-
             Response.Write(json);
+        }
+
+        private string check_cell(int row, int col)
+        {
+            try
+            {
+                if (xlRange.Cells[row, col] != null)
+                {
+                    return xlRange.Cells[row, col].Value2.ToString();
+                }
+            }
+            catch(Exception ex)
+            {
+                string mx = ex.Message;
+            }
+            
+            return "";
         }
     }
 }

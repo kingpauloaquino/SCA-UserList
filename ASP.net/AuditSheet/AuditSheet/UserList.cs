@@ -7,10 +7,10 @@ namespace AuditSheet
 {
     public class UserList
     {
-        public int UserId { get; set; }
-        public int WorkerId { get; set; }
+        public string UserId { get; set; }
+        public string WorkerId { get; set; }
         public string Role { get; set; }
-        public int Active { get; set; }
+        public string Active { get; set; }
         public string Username { get; set; }
         public string PasswordHint { get; set; }
         public string BusinessName { get; set; }
