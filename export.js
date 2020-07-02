@@ -37,14 +37,14 @@ app.get('/check-point', (req, res) => {
     var dropbox_link = "https://www.dropbox.com/sh/0jx9qa3hpj0yepr/AACCapL-fHbjsE_4SX9L-Jkfa?dl=0";
 
     // super admin
-    if (req.query["password"] == "$65q9iV20ZJTTA0HQlQ9VBbVN9$gub") {
+    if (req.query["password"] == "123456789") {
         isValid = true;
         role = 999;
         dropbox_link = "https://www.dropbox.com/sh/20aissro9ml3rha/AAAHeOTlghwhLYf-fSSig0pRa?dl=0";
     }
 
     // admin
-    if (req.query["password"] == "o2scNdy9u@Qk4^KA") {
+    if (req.query["password"] == "1234") {
         isValid = true;
         role = 1;
     }
@@ -64,10 +64,10 @@ function get_all_members(response, IsDownload, role) {
     console.log(role);
 
     if (role > 900) {
-        url = "https://api.scrapcatapp.com/kpa/get-all-members/export-to-excel?show-password=true";
+        url = "https://sca-api-staging1.scrapcat.net/kpa/get-all-members/export-to-excel?show-password=true";
     }
     else if (role > 0 && role < 900) {
-        url = "https://api.scrapcatapp.com/kpa/get-all-members/export-to-excel";
+        url = "https://sca-api-staging1.scrapcat.net/kpa/get-all-members/export-to-excel";
     }
     else {
         response.send({ status: 405, message: "You don't have any permissions to access this page, we got your location, and we are tracing you now. Got it? Good luck.."});
@@ -162,5 +162,5 @@ function save_into_excel2(response, members) {
     return false;
 }
 
-// app.listen(7878);
-app.listen(process.env.PORT);
+app.listen(7878);
+// app.listen(process.env.PORT);
